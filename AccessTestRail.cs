@@ -72,9 +72,9 @@ namespace TestRailPlanReRun
         }
 
 
-        public static JObject AddPlan(APIClient client, string planID, object planObject)
+        public static JObject AddPlan(APIClient client, string projectID, object planObject)
         {
-            return (JObject)client.SendPost("add_plan/" + planID, planObject);
+            return (JObject)client.SendPost("add_plan/" + projectID, planObject);
         }
 
 
@@ -90,8 +90,9 @@ namespace TestRailPlanReRun
             return listOfSuiteIds;
         }
 
-        public static List<MainClass.Run> GetRunsInPlan(JObject singularPlanObject, List<MainClass.Run> runs)
+        public static List<MainClass.Run> GetRunsInPlan(JObject singularPlanObject)
         {
+            List<MainClass.Run> runs = new List<MainClass.Run>();
             //List<string> runInPlanIds = new List<string>();
 
             JProperty prop = singularPlanObject.Property("entries");
@@ -115,19 +116,15 @@ namespace TestRailPlanReRun
 
                         JToken[] configIDsToken = runObject.Property("config_ids").Value.ToArray();
                         string[] configIDs = configIDsToken.Cast<JToken>().Select(x => x.ToString()).ToArray();
+                        string[] caseIDs = new string[1];
 
                         MainClass.Run run;
                         run.RunID = runInPlanId;
                         run.Config = runObject.Property("config").Value.ToString();
                         run.ConfigIDs = configIDs;
+                        run.CaseIDs = caseIDs;
+                        run.SuiteID = runObject.Property("suite_id").Value.ToString();
                         runs.Add(run);
-
-                        //if (!runInPlanIds.Contains(runInPlanId))
-                        //{
-                        //    runInPlanIds.Add(runInPlanId);
-                        //    //string suiteInPlanId = runObject.Property("suite_id").Value.ToString();
-                        //    //suiteInPlanIDs.Add(suiteInPlanId);
-                        //}
                     }
                 }
             }
