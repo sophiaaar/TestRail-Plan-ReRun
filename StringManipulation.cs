@@ -90,12 +90,14 @@ namespace TestRailPlanReRun
             return planObject;
         }
 
-        public static Dictionary<string, object> PlanEntry(string suite_id, bool include_all, object runs)
+        public static Dictionary<string, object> PlanEntry(string suite_id, bool include_all, object runs, object allConfigIDs)
         {
             var planObject = new Dictionary<string, object>
             {
                 {"suite_id", suite_id},
+                {"assignedto_id", 1},
                 {"include_all", include_all = false},
+                {"config_ids", allConfigIDs},
                 {"runs", runs}
             };
             return planObject;

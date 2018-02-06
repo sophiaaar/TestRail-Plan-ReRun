@@ -13,6 +13,7 @@ namespace TestRailPlanReRun
 
         //public static List<Run> runs = new List<Run>();
         public static List<string> suiteIDs = new List<string>();
+        public static List<string> allConfigIDs = new List<string>();
 
 
         public struct Test
@@ -106,7 +107,8 @@ namespace TestRailPlanReRun
                     //planEntries.Add(planEntry);
                 }
                 object runArray = runList.ToArray();
-                Dictionary<string, object> planEntry = StringManipulation.PlanEntry(suiteIDs[j], false, runArray);
+                object configArray = allConfigIDs.ToArray();
+                Dictionary<string, object> planEntry = StringManipulation.PlanEntry(suiteIDs[j], false, runArray, configArray);
                 //create list of plan entries, convert to array, put into new plan
                 planEntries.Add(planEntry);
 
@@ -166,6 +168,14 @@ namespace TestRailPlanReRun
                     if (!suiteIDs.Contains(currentRun.SuiteID))
                     {
                         suiteIDs.Add(currentRun.SuiteID);
+                    }
+
+                    foreach (string configID in newRun.ConfigIDs)
+                    {
+                        if (!allConfigIDs.Contains(configID))
+                        {
+                            allConfigIDs.Add(configID);
+                        }
                     }
                 }
 
