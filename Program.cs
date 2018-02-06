@@ -12,8 +12,8 @@ namespace TestRailPlanReRun
         private static readonly IConfigReader _configReader = new ConfigReader();
 
         //public static List<Run> runs = new List<Run>();
-        public static List<string> suiteIDs = new List<string>();
-        public static List<string> allConfigIDs = new List<string>();
+        public static List<int> suiteIDs = new List<int>();
+        public static List<int> allConfigIDs = new List<int>();
 
 
         public struct Test
@@ -45,9 +45,9 @@ namespace TestRailPlanReRun
         {
             public string RunID;
             public string Config;
-            public string[] ConfigIDs;
-            public string[] CaseIDs;
-            public string SuiteID;
+            public int[] ConfigIDs;
+            public int[] CaseIDs;
+            public int SuiteID;
         }
 
         public struct Suite
@@ -117,8 +117,11 @@ namespace TestRailPlanReRun
             Dictionary<string, object> newPlan = StringManipulation.NewPlan("Re-run plan", entriesArray); //change name
 
             var json = JsonConvert.SerializeObject(newPlan);
+            //var test = JsonConvert.SerializeObject(json);
             Console.Write(json);
-            AccessTestRail.AddPlan(client, projectID, json);
+            //string json = newPlan.ToString();
+            //Console.Write(json);
+            AccessTestRail.AddPlan(client, projectID, newPlan);
         }
 
         public static List<Run> GetCasesInRun(APIClient client, List<Run> runs)
@@ -128,9 +131,9 @@ namespace TestRailPlanReRun
             {
                 Run currentRun = runs[i];
                 string runId = currentRun.RunID;
-                string caseID = "";
+                int caseID = 0;
                 string status = "";
-                List<string> caseIdList = new List<string>();
+                List<int> caseIdList = new List<int>();
 
                 JArray testsArray = AccessTestRail.GetTestsInRun(client, runId);
                 // need to get list of case ids
@@ -147,14 +150,14 @@ namespace TestRailPlanReRun
 
                     if (testObject.Property("case_id").Value != null && !string.IsNullOrWhiteSpace(testObject.Property("case_id").Value.ToString()))
                     {
-                        caseID = testObject.Property("case_id").Value.ToString();
+                        caseID = Int32.Parse(testObject.Property("case_id").Value.ToString());
                         caseIdList.Add(caseID);
                     }
                 }
 
                 if (status != "Passed")
                 {
-                    string[] caseIDs = caseIdList.ToArray();
+                    int[] caseIDs = caseIdList.ToArray();
                     //currentRun.CaseIDs = caseIDs;
 
                     Run newRun;
@@ -170,7 +173,7 @@ namespace TestRailPlanReRun
                         suiteIDs.Add(currentRun.SuiteID);
                     }
 
-                    foreach (string configID in newRun.ConfigIDs)
+                    foreach (int configID in newRun.ConfigIDs)
                     {
                         if (!allConfigIDs.Contains(configID))
                         {
@@ -178,9 +181,6 @@ namespace TestRailPlanReRun
                         }
                     }
                 }
-
-                // then input info into StringManipulation.RunsInPlan ???
-                // i hate this stupid api
             }
             return fullRuns;
         }

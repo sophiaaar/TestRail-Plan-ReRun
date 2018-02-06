@@ -115,15 +115,15 @@ namespace TestRailPlanReRun
                         string runInPlanId = runObject.Property("id").Value.ToString();
 
                         JToken[] configIDsToken = runObject.Property("config_ids").Value.ToArray();
-                        string[] configIDs = configIDsToken.Cast<JToken>().Select(x => x.ToString()).ToArray();
-                        string[] caseIDs = new string[1];
+                        int[] configIDs = configIDsToken.Cast<JToken>().Select(x => Int32.Parse(x.ToString())).ToArray();
+                        int[] caseIDs = new int[1];
 
                         MainClass.Run run;
                         run.RunID = runInPlanId;
                         run.Config = runObject.Property("config").Value.ToString();
                         run.ConfigIDs = configIDs;
                         run.CaseIDs = caseIDs;
-                        run.SuiteID = runObject.Property("suite_id").Value.ToString();
+                        run.SuiteID = Int32.Parse(runObject.Property("suite_id").Value.ToString());
                         runs.Add(run);
                     }
                 }
