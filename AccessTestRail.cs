@@ -18,6 +18,10 @@ namespace TestRailPlanReRun
         {
             return (JArray)client.SendGet("get_plans/2&milestone_id=" + milestoneID);
         }
+        public static JArray GetConfigs(APIClient client, string projectID)
+        {
+            return (JArray)client.SendGet("get_configs/" + projectID);
+        }
 
         public static JObject GetPlan(APIClient client, string planID)
         {

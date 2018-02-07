@@ -71,6 +71,10 @@ namespace TestRailPlanReRun
             Console.WriteLine("Hello World!");
             APIClient client = ConnectToTestrail();
 
+            //JArray configs = AccessTestRail.GetConfigs(client, "2");
+            // json = JsonConvert.SerializeObject(configs);
+            //Console.WriteLine(json);
+
             Console.WriteLine("Enter ID of plan to be re-run");
             string planID = Console.ReadLine();
             Console.WriteLine("Enter project ID to put new plan");
