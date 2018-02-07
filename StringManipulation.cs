@@ -6,42 +6,6 @@ namespace TestRailPlanReRun
 {
     public class StringManipulation
     {
-        public static string HasSteps(JObject arrayObject)
-        {
-            if (arrayObject.Property("custom_steps") != null && !string.IsNullOrWhiteSpace(arrayObject.Property("custom_steps").Value.ToString()))
-            {
-                return "Yes";
-            }
-            else
-            {
-                return "No";
-            }
-        }
-
-        public static string HasStepsSeparated(JObject arrayObject)
-        {
-            if (arrayObject.Property("custom_steps_separated") != null && !string.IsNullOrWhiteSpace(arrayObject.Property("custom_steps_separated").Value.ToString()))
-            {
-                return "Yes";
-            }
-            else
-            {
-                return "No";
-            }
-        }
-
-        public static string IsInvalid(JObject arrayObject)
-        {
-            if (HasSteps(arrayObject) == "No" && HasStepsSeparated(arrayObject) == "No")
-            {
-                return "Invalid";
-            }
-            else
-            {
-                return "Valid";
-            }
-        }
-
         /// <summary>
         /// Converts the status number to a string
         /// </summary>
@@ -68,18 +32,6 @@ namespace TestRailPlanReRun
             }
         }
 
-        private Dictionary<string, object> CreateResultData(string status_id)
-        {
-            //objectdata needs to be a json i think
-            //http://docs.gurock.com/testrail-api2/reference-results#add_result
-
-            var resultObject = new Dictionary<string, object>
-            {
-                {"status_id", status_id}
-            };
-            return resultObject;
-        }
-
         public static Dictionary<string, object> NewPlan(string name, object entries)
         {
             var planObject = new Dictionary<string, object>
@@ -96,9 +48,9 @@ namespace TestRailPlanReRun
             {
                 {"suite_id", suite_id},
                 {"assignedto_id", 1},
-                {"include_all", include_all = true},
+                {"include_all", include_all = false},
                 {"config_ids", allConfigIDs},
-                //{"case_ids", allCaseIDs},
+                {"case_ids", allCaseIDs},
                 {"runs", runs}
             };
             return planObject;

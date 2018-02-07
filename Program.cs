@@ -70,9 +70,7 @@ namespace TestRailPlanReRun
         {
             Console.WriteLine("Hello World!");
             APIClient client = ConnectToTestrail();
-            // user input name of plan (orget it from previous
-            // get plan to be rerun
-            // AccessTestrail.AddPlan
+
             Console.WriteLine("Enter ID of plan to be re-run");
             string planID = Console.ReadLine();
             Console.WriteLine("Enter project ID to put new plan");
@@ -84,6 +82,7 @@ namespace TestRailPlanReRun
         public static void CreateRerunPlan(APIClient client, string planId, string projectID)
         {
             JObject planObject =  AccessTestRail.GetPlan(client, planId);
+            string planName = planObject.Property("name").Value.ToString();
             //var json = JsonConvert.SerializeObject(planObject);
             ////var test = JsonConvert.SerializeObject(json);
             //Console.Write(json);
@@ -94,11 +93,6 @@ namespace TestRailPlanReRun
 
             for (int j = 0; j < suiteIDs.Count; j++)
             {
-                //for (int i = 0; i < editedRuns.Count; i++)
-                //{
-                //if (!string.IsNullOrEmpty(editedRuns[i].CaseIDs[0]))
-
-                //}
 
                 List<Dictionary<string, object>> runList = new List<Dictionary<string, object>>();
                 List<Run> runsForSuite = editedRuns.FindAll(x => x.SuiteID == suiteIDs[j]);
@@ -125,10 +119,7 @@ namespace TestRailPlanReRun
                             configsInRunsInSuite.Add(configID);
                         }
                     }
-                    //object runArray = runList.ToArray();
-                    //Dictionary<string, object> planEntry = StringManipulation.PlanEntry(runsForSuite[i].SuiteID, false, runArray);
-                    ////create list of plan entries, convert to array, put into new plan
-                    //planEntries.Add(planEntry);
+
                 }
                 object runArray = runList.ToArray();
                 //object configArray = allConfigIDs.ToArray();
@@ -142,7 +133,7 @@ namespace TestRailPlanReRun
 
             }
             object entriesArray = planEntries.ToArray();
-            Dictionary<string, object> newPlan = StringManipulation.NewPlan("Re-run plan", entriesArray); //change name
+            Dictionary<string, object> newPlan = StringManipulation.NewPlan(planName + " re-run", entriesArray); //change name
 
             var json = JsonConvert.SerializeObject(newPlan);
             ////var test = JsonConvert.SerializeObject(json);
@@ -171,22 +162,16 @@ namespace TestRailPlanReRun
 
                     status = StringManipulation.GetStatus(testObject.Property("status_id").Value.ToString());
 
-                    //if (status == "Passed")
-                    //{
-                    //    break;
-                    //}
-
-                    if (testObject.Property("case_id").Value != null && !string.IsNullOrWhiteSpace(testObject.Property("case_id").Value.ToString()))
+                    if (testObject.Property("case_id").Value != null && !string.IsNullOrWhiteSpace(testObject.Property("case_id").Value.ToString()) && status != "Passed")
                     {
                         caseID = Int32.Parse(testObject.Property("case_id").Value.ToString());
-                        caseIdList.Add(caseID);
+                        caseIdList.Add(caseID); //here we add the case id before we even check if it has failed. why!!!!
                     }
                 }
 
-                if (status != "Passed")
+                if (status != "Passed") // we just want the case id of the test that didnt pass
                 {
                     int[] caseIDs = caseIdList.ToArray();
-                    //currentRun.CaseIDs = caseIDs;
 
                     Run newRun;
                     newRun.CaseIDs = caseIDs;
