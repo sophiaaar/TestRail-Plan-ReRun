@@ -115,7 +115,7 @@ namespace TestRailPlanReRun
                         string runInPlanId = runObject.Property("id").Value.ToString();
 
                         JToken[] configIDsToken = runObject.Property("config_ids").Value.ToArray();
-                        int[] configIDs = configIDsToken.Cast<JToken>().Select(x => Int32.Parse(x.ToString())).ToArray();
+                        int[] configIDs = configIDsToken.Cast<JToken>().Select(x => Int32.Parse(x.ToString())).ToArray(); //all config ids for that run. can i separate to be per test?
                         int[] caseIDs = new int[1];
 
                         MainClass.Run run;

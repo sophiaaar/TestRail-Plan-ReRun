@@ -14,6 +14,7 @@ namespace TestRailPlanReRun
         //public static List<Run> runs = new List<Run>();
         public static List<int> suiteIDs = new List<int>();
         public static List<int> allConfigIDs = new List<int>();
+        public static List<int> allCaseIDs = new List<int>();
 
 
         public struct Test
@@ -83,9 +84,12 @@ namespace TestRailPlanReRun
         public static void CreateRerunPlan(APIClient client, string planId, string projectID)
         {
             JObject planObject =  AccessTestRail.GetPlan(client, planId);
+            //var json = JsonConvert.SerializeObject(planObject);
+            ////var test = JsonConvert.SerializeObject(json);
+            //Console.Write(json);
             List<Run> runIDs = AccessTestRail.GetRunsInPlan(planObject);
             List<Dictionary<string, object>> planEntries = new List<Dictionary<string, object>>();
-            List<Dictionary<string, object>> runList = new List<Dictionary<string, object>>();
+
             List<Run> editedRuns = GetCasesInRun(client, runIDs);
 
             for (int j = 0; j < suiteIDs.Count; j++)
@@ -95,20 +99,44 @@ namespace TestRailPlanReRun
                 //if (!string.IsNullOrEmpty(editedRuns[i].CaseIDs[0]))
 
                 //}
+
+                List<Dictionary<string, object>> runList = new List<Dictionary<string, object>>();
                 List<Run> runsForSuite = editedRuns.FindAll(x => x.SuiteID == suiteIDs[j]);
+                List<int> casesInRunsInSuite = new List<int>();
+                List<int> configsInRunsInSuite = new List<int>();
 
                 for (int i = 0; i < runsForSuite.Count; i++)
                 {
                     Dictionary<string, object> runInPlanObject = StringManipulation.RunsInPlan(false, runsForSuite[i]);
                     runList.Add(runInPlanObject);
+
+                    foreach (int caseID in runsForSuite[i].CaseIDs)
+                    {
+                        if (!casesInRunsInSuite.Contains(caseID))
+                        {
+                            casesInRunsInSuite.Add(caseID);
+                        }
+                    }
+
+                    foreach (int configID in runsForSuite[i].ConfigIDs)
+                    {
+                        if (!configsInRunsInSuite.Contains(configID))
+                        {
+                            configsInRunsInSuite.Add(configID);
+                        }
+                    }
                     //object runArray = runList.ToArray();
                     //Dictionary<string, object> planEntry = StringManipulation.PlanEntry(runsForSuite[i].SuiteID, false, runArray);
                     ////create list of plan entries, convert to array, put into new plan
                     //planEntries.Add(planEntry);
                 }
                 object runArray = runList.ToArray();
-                object configArray = allConfigIDs.ToArray();
-                Dictionary<string, object> planEntry = StringManipulation.PlanEntry(suiteIDs[j], false, runArray, configArray);
+                //object configArray = allConfigIDs.ToArray();
+                //object caseArray = allCaseIDs.ToArray(); // we don't want all case ids here
+                object caseArray = casesInRunsInSuite.ToArray();
+                object configArray = configsInRunsInSuite.ToArray();
+
+                Dictionary<string, object> planEntry = StringManipulation.PlanEntry(suiteIDs[j], false, runArray, configArray, caseArray);
                 //create list of plan entries, convert to array, put into new plan
                 planEntries.Add(planEntry);
 
@@ -117,11 +145,11 @@ namespace TestRailPlanReRun
             Dictionary<string, object> newPlan = StringManipulation.NewPlan("Re-run plan", entriesArray); //change name
 
             var json = JsonConvert.SerializeObject(newPlan);
-            //var test = JsonConvert.SerializeObject(json);
+            ////var test = JsonConvert.SerializeObject(json);
             Console.Write(json);
             //string json = newPlan.ToString();
             //Console.Write(json);
-            AccessTestRail.AddPlan(client, projectID, newPlan);
+             AccessTestRail.AddPlan(client, projectID, newPlan);
         }
 
         public static List<Run> GetCasesInRun(APIClient client, List<Run> runs)
@@ -143,10 +171,10 @@ namespace TestRailPlanReRun
 
                     status = StringManipulation.GetStatus(testObject.Property("status_id").Value.ToString());
 
-                    if (status == "Passed")
-                    {
-                        break;
-                    }
+                    //if (status == "Passed")
+                    //{
+                    //    break;
+                    //}
 
                     if (testObject.Property("case_id").Value != null && !string.IsNullOrWhiteSpace(testObject.Property("case_id").Value.ToString()))
                     {
@@ -178,6 +206,14 @@ namespace TestRailPlanReRun
                         if (!allConfigIDs.Contains(configID))
                         {
                             allConfigIDs.Add(configID);
+                        }
+                    }
+
+                    foreach (int caseIDloop in newRun.CaseIDs)
+                    {
+                        if (!allCaseIDs.Contains(caseIDloop))
+                        {
+                            allCaseIDs.Add(caseIDloop);
                         }
                     }
                 }
